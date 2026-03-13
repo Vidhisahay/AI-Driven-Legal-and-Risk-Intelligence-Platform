@@ -13,7 +13,7 @@ headers = {
 }
 
 
-def fetch_cases(pages=50, page_size=200):
+def fetch_cases(pages=250, page_size=200):
 
     all_cases = []
 
