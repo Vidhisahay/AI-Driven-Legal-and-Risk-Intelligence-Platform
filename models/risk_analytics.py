@@ -1,45 +1,75 @@
 import pandas as pd
+import spacy
+import re
 
-print("Loading entity dataset")
+print("Loading raw dataset")
 
-entities = pd.read_csv("data/processed/legal_entities.csv")
+df = pd.read_csv("data/raw/legal_cases.csv")
 
-print("Loading case dataset")
+print("Loading NLP model")
 
-cases = pd.read_csv("data/raw/legal_cases.csv")
+nlp = spacy.load("en_core_web_sm")
+
+organizations = []
+risk_labels = []
+years = []
+
+risk_words = [
+    "fraud",
+    "penalty",
+    "violation",
+    "criminal",
+    "sanction",
+    "illegal",
+    "bribery",
+    "money laundering"
+]
+
+print("Running analytics pipeline")
+
+for text, date in zip(df["text"].fillna(""), df["date"]):
+
+    text_str = str(text)
+
+    # -------- Entity Extraction --------
+    doc = nlp(text_str[:2000])
+
+    org = "Unknown"
+
+    for ent in doc.ents:
+        if ent.label_ == "ORG":
+            org = ent.text
+            break
+
+    organizations.append(org)
+
+    # -------- Risk Detection --------
+    label = "normal"
+
+    lower_text = text_str.lower()
+
+    for word in risk_words:
+        if word in lower_text:
+            label = "high_risk"
+            break
+
+    risk_labels.append(label)
+
+    # -------- Year Extraction --------
+    try:
+        year = pd.to_datetime(date).year
+    except:
+        year = None
+
+    years.append(year)
 
 
-print("Merging datasets")
+df["organization"] = organizations
+df["risk_level"] = risk_labels
+df["year"] = years
 
-data = entities.merge(
-    cases[["text"]],
-    left_on="case_id",
-    right_index=True
-)
+print("Saving enriched dataset")
 
-# ------------------------------------------------
-# Example analytics: top organizations mentioned
-# ------------------------------------------------
+df.to_csv("data/processed/legal_cases_enriched.csv", index=False)
 
-print("Computing top organizations")
-
-org_series = data["organizations"].str.split(", ")
-
-org_exploded = org_series.explode()
-
-top_orgs = (
-    org_exploded.value_counts()
-    .head(20)
-    .reset_index()
-)
-
-top_orgs.columns = ["organization", "mentions"]
-
-print(top_orgs)
-
-top_orgs.to_csv(
-    "data/processed/top_organizations.csv",
-    index=False
-)
-
-print("Saved analytics dataset")
+print("Analytics dataset created successfully")

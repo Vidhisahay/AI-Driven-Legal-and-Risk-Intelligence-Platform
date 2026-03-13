@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+
+  airflow:
+    image: apache/airflow:2.8.1
+    container_name: airflow_legal_ai
+
+    ports:
+      - "8080:8080"
+
+    volumes:
+      - ../airflow:/opt/airflow/dags
+      - ../:/opt/project
+
+    environment:
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+
+    command: standalone
