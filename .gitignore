@@ -42,5 +42,10 @@ docker/tmp/
 data/raw/
 data/processed/
 
+# datasets
+analytics/
+data/
+*.csv
+
 # VSCode
 .vscode/
