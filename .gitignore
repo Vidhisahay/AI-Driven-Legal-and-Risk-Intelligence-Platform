@@ -1,10 +1,46 @@
+# Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-data/raw/*
-data/processed/*
-
-.env
+# Virtual environments
 venv/
+env/
+airflow_env/
+
+# Environment variables
+.env
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# Logs
+logs/
+*.log
+
+# Airflow generated files
+airflow/airflow.db
+airflow/logs/
+
+# Streamlit cache
+.streamlit/
+
+# Python build files
+build/
+dist/
+*.egg-info/
+
+# Docker temporary files
+docker/tmp/
+
+# Large datasets 
+data/raw/
+data/processed/
+
+# VSCode
+.vscode/
